@@ -12,4 +12,5 @@
 #Click "Find Geographies", "Geographic Coordinator"
 
 #We are matching the houses in dataset 1 with the houses in data set 2 using the geocoding API. Then we will compare the changes in house prices over the years.
+
 #Bonus: We could create and implement a price change prediction
