@@ -11,6 +11,7 @@ print(f"Test data:\n{test_data}")
 full_data = pd.concat([train_data, test_data], axis = 0)
 print(f"Full data:\n{full_data}")
 
-#Clean rows with empty data
+#Clean rows with empty data for Address and Bedrooms
 full_data = full_data.dropna(subset=['Address', 'Bedrooms'])
 print(f"Full data:\n{full_data}")
+
