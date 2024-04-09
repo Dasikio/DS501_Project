@@ -1,8 +1,8 @@
 import pandas as pd
 
 #Retrieve both parts of data set
-train_data = pd.read_csv("C:/Users/danie/Desktop/UK_Code/DS501/Project/california_house_prices/train.csv")
-test_data = pd.read_csv("C:/Users/danie/Desktop/UK_Code/DS501/Project/california_house_prices/test.csv")
+train_data = pd.read_csv("data addres")
+test_data = pd.read_csv("data addres")
 
 print(f"Train data:\n{train_data}")
 print(f"Test data:\n{test_data}")
