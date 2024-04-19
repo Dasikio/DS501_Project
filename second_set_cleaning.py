@@ -25,13 +25,23 @@ def get_geocode(address, city, zip_code, state):
 
 # Function to get county from geocode
 def get_county(latitude, longitude):
-    county_url = f"https://geocoding.geo.census.gov/geocoder/geographies/coordinates?x={longitude}&y={latitude}&benchmark=Public_AR_Census2020&vintage=Census2020_Census2020&layers=6&format=json"
-    county_response = requests.get(county_url)
-    county_data = county_response.json()
-    if 'result' in county_data and 'geographies' in county_data['result'] and 'Counties' in county_data['result']['geographies'] and len(county_data['result']['geographies']['Counties']) > 0:
-        county_name = county_data['result']['geographies']['Counties'][0]['NAME']
-        return county_name
-    else:
+    try:
+        # Construct the API endpoint URL for geocoding
+        geocode_api = f"https://geocoding.geo.census.gov/geocoder/geographies/coordinates?x={longitude}&y={latitude}&benchmark=Public_AR_Census2020&vintage=Census2020_Census2020&layers=6&format=json"
+
+        # Make a GET request to the API endpoint for geocoding
+        response = requests.get(geocode_api)
+        response.raise_for_status()  # Raise an exception for 4xx or 5xx status codes
+
+        # Convert the response to JSON format
+        geocode_api_data = response.json()
+
+        # Access the county code information and store it in the 'county' column
+        county_code = geocode_api_data['result']['geographies']['Census Tracts'][0]['COUNTY']
+        return county_code
+
+    except (requests.RequestException, KeyError, IndexError) as e:
+        print(f"Error occurred for coordinates ({longitude}, {latitude}): {str(e)}")
         return None
 
 # Retrieve both parts of data set
@@ -46,6 +56,14 @@ full_data = full_data.dropna(subset=['Address', 'Bedrooms'])
 
 # Add longitude and latitude columns
 full_data['Latitude'], full_data['Longitude'] = zip(*full_data.apply(lambda row: get_geocode(row['Address'], row['City'], row['Zip'], row['State']), axis=1))
+
+county_names = {
+    '037': 'Los Angeles',
+    '073': 'San Diego',
+    '059': 'Orange',
+    '065': 'Riverside',
+    '071': 'San Bernardino'
+}
 
 # Add county column
 full_data['County'] = full_data.apply(lambda row: get_county(row['Latitude'], row['Longitude']), axis=1)
