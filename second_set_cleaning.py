@@ -5,6 +5,7 @@ import requests
 def get_geocode(address, city, zip_code, state):
     # Format the address for the API request
     formatted_address = f"{address.replace(' ', '+')},+{city.replace(' ', '+')},+{state}+{zip_code}"
+    formatted_address = formatted_address.replace('#','')
     geocoding_url = f"https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address={formatted_address}&benchmark=2020&format=json"
     
     try:
