@@ -16,4 +16,6 @@
 #Data set 1 will drop all rows/locations based on longitude/latitude that are not in Los Angeles, San Diego, or Orange County.
 
 #Data set 2 will drop all rows/locations based on cities that are not in the counties mentioned above. 
+
+#Count num cooling features and heating features
 #Bonus: We could create and implement a price change prediction
