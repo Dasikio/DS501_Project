@@ -50,7 +50,7 @@ def main(file_path, county_names):
     return cleaned_dataset1
 
 if __name__ == "__main__":
-    file_path = "/content/drive/MyDrive/Colab Notebooks/DS 501/California_House_Info.csv"
+    file_path = "localpath/California_House_Info.csv"
     county_names = {
         '037': 'Los Angeles',
         '073': 'San Diego',
