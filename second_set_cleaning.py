@@ -2,7 +2,7 @@ import pandas as pd
 import requests
 
 # Function to get geocode (longitude and latitude) from address
-def get_geocode(address, city, zip_code, state):
+def get_coordinates(address, city, zip_code, state):
     # Format the address for the API request
     formatted_address = f"{address.replace(' ', '+')},+{city.replace(' ', '+')},+{state}+{zip_code}"
     formatted_address = formatted_address.replace('#','')
@@ -45,24 +45,31 @@ def get_county(latitude, longitude):
         print(f"Error occurred for coordinates ({longitude}, {latitude}): {str(e)}")
         return None
 
-# Retrieve both parts of data set
-train_data = pd.read_csv("train.csv")
-test_data = pd.read_csv("test.csv")
+#Function to process 2 or more subsets of dataSet
 
-# Join both sets to have complete set
-full_data = pd.concat([train_data, test_data], axis=0)
+def clean_set2(susbset_list):{
+    full_data = pd.DataFrame()
+    for idx, file_name in enumerate(susbset_list):
+        # Read the CSV file into a DataFrame
+        df = pd.read_csv(file_name)
+        if idx == 0:
+            full_data = df
+        else:
+            full_data = pd.concat([full_data, df], ignore_index=True)
 
+    # Clean the DataFrame
+    full_data = full_data.dropna(subset=['Address', 'Bedrooms'])
+    full_data['latitude'], full_data['longitude'] = zip(*full_data.apply(lambda row: get_coordinates(row['Address'], row['City'], row['Zip'], row['State']), axis=1))
+    full_data['county'] = full_data.apply(lambda row: get_county(row['latitude'], row['longitude']), axis=1)
 
-#-----------------------------------------------------------
-full_data = full_data.head(500) #Restrict data for testing
-#-----------------------------------------------------------
+    return full_data
+}
+# Use fucntion to join and clean data sets
+susbset_list = ['train.csv', 'test.csv']
 
+full_data = clean_set2(susbset_list)
 
-# Clean rows with empty data for Address and Bedrooms
-full_data = full_data.dropna(subset=['Address', 'Bedrooms'])
-
-# Add longitude and latitude columns
-full_data['latitude'], full_data['longitude'] = zip(*full_data.apply(lambda row: get_geocode(row['Address'], row['City'], row['Zip'], row['State']), axis=1))
+filtered_set2_data = full_data.copy()
 
 #Define County codes for data cleaning
 county_names = {
@@ -72,11 +79,6 @@ county_names = {
     '065': 'Riverside',
     '071': 'San Bernardino'
 }
-
-# Add county column
-full_data['county'] = full_data.apply(lambda row: get_county(row['latitude'], row['longitude']), axis=1)
-
-filtered_set2_data = full_data.copy()
 
 # Iterate over each county code in the 'county' column
 indices_to_drop = []  # List to store indices of rows to drop
