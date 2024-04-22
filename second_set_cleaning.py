@@ -45,9 +45,29 @@ def get_county(latitude, longitude):
         print(f"Error occurred for coordinates ({longitude}, {latitude}): {str(e)}")
         return None
 
-#Function to process 2 or more subsets of dataSet
+#Function to filter data from wanted counties
+def county_filter(full_data,county_names):
+    # Iterate over each county code in the 'county' column
+    indices_to_drop = []  # List to store indices of rows to drop
+    for index, county_code in full_data['county'].items():
+        # Check if the county code exists in the dictionary keys
+        if county_code in county_names:
+            # Replace the county code with the corresponding county name
+            full_data.at[index, 'county'] = county_names[county_code]
+        else:
+            # Add the index to the list of indices to drop
+            indices_to_drop.append(index)
 
-def clean_set2(susbset_list):
+        # Drop rows with indices from the list and round values
+        full_data.drop(indices_to_drop, inplace=True)
+
+#Function to aggregate desired columns
+def data_aggregation(aggregation_functions):
+    mod_full_data = full_data.groupby(['longitude', 'latitude']).agg(aggregation_functions).reset_index()
+
+
+#Function to process two or more subsets of a dataSet
+def complete_set2(susbset_list):
     full_data = pd.DataFrame()
     for idx, file_name in enumerate(susbset_list):
         # Read the CSV file into a DataFrame
@@ -70,70 +90,61 @@ def clean_set2(susbset_list):
 
     return full_data
 
-def county_filter(full_data,county_names):
-    # Iterate over each county code in the 'county' column
-    indices_to_drop = []  # List to store indices of rows to drop
-    for index, county_code in full_data['county'].items():
-        # Check if the county code exists in the dictionary keys
-        if county_code in county_names:
-            # Replace the county code with the corresponding county name
-            full_data.at[index, 'county'] = county_names[county_code]
-        else:
-            # Add the index to the list of indices to drop
-            indices_to_drop.append(index)
+def clean_set2(full_data, county_names, aggregation_functions):
+    filtered_data = county_filter(full_data,county_names)
+    cleaned_dataset2 = data_aggregation(aggregation_functions)
 
-        # Drop rows with indices from the list and round values
-        full_data.drop(indices_to_drop, inplace=True)
-
-def data_aggregatrion(aggregation_functions):
-    mod_full_data = full_data.groupby(['longitude', 'latitude']).agg(aggregation_functions).reset_index()
+    return cleaned_dataset2
 
 
+def main():
+    # List of subsets to join for dataSet
+    subset_list = ['train.csv', 'test.csv']
 
-# Use fucntion to join and clean data sets
-susbset_list = ['train.csv', 'test.csv']
+    # Define County codes wanted
+    county_names = {
+        '037': 'Los Angeles',
+        '073': 'San Diego',
+        '059': 'Orange',
+        '065': 'Riverside',
+        '071': 'San Bernardino'
+    }
 
-full_data = clean_set2(susbset_list)
+    # Agregate data for merging
+    # Define aggregation dictionary for desired columns
+    aggregation_functions = {
+        'Sold Price': 'mean',  # Average price of homes - Use mean to get average of values in same area
+        'Year built': 'mean',
+        'Bedrooms': 'sum',  # Total number of bedrooms - Use sum to add values in same area
+        'Bathrooms': 'sum',
+        'Full bathrooms': 'sum',
+        'Total interior livable area': 'mean', #Average house area
+        'Elementary School Distance': 'mean', # Average distance to schools
+        'Middle School Distance': 'mean', # Average distance to schools
+        'High School Distance': 'mean', # Average distance to schools
+        'Last Sold Price': 'mean'  #Average house price
+    }
 
-#Copy in case of error
-filtered_set2_data = full_data.copy()
+    # Get complete set 2 (join subsets, find coordinates and counties)
+    full_data = complete_set2(subset_list)
 
-#Define County codes wanted
-county_names = {
-    '037': 'Los Angeles',
-    '073': 'San Diego',
-    '059': 'Orange',
-    '065': 'Riverside',
-    '071': 'San Bernardino'
-}
+    # Copy in case of error
+    filtered_set2_data = full_data.copy()
 
-#Drop extra Counties from data
-filtered_data = county_filter(full_data,county_names)
+    # Clean data
+    cleaned_dataset2 = clean_set2(full_data, county_names)
 
-full_data_backup = filtered_data.copy()
+    return cleaned_dataset2
 
-#Agregate data for merging
-# Define aggregation dictionary for desired columns
-aggregation_functions = {
-    'Sold Price': 'mean',  # Average price of homes - Use mean to get average of values in same area
-    'Year built': 'mean',
-    'Bedrooms': 'sum',  # Total number of bedrooms - Use sum to add values in same area
-    'Bathrooms': 'sum',
-    'Full bathrooms': 'sum',
-    'Total interior livable area': 'mean', #Average house area
-    'Elementary School Distance': 'mean', # Average distance to schools
-    'Middle School Distance': 'mean', # Average distance to schools
-    'High School Distance': 'mean', # Average distance to schools
-    'Last Sold Price': 'mean'  #Average house price
-}
+# Call the main function
+if __name__ == "__main__":
+    #Modify main with the necesary entries to use this dataSet cleaning framework
+    cleaned_dataset2 = main()
 
-cleaned_dataset2 = data_aggregatrion(aggregation_functions)
-
-# Group by longitude and latitude columns and apply aggregation functions
+    #Save csv of completed processed data set to current directory
+    cleaned_dataset2.to_csv('cleaned_dataset2.csv', index=False)
+    print(cleaned_dataset2)
 
 #-----------------------------------------------
-#Save csv of completed processed data set
-#-----------------------------------------------
-cleaned_dataset2.to_csv('cleaned_dataset2.csv', index=False)
 
-print(cleaned_dataset2)
+#-----------------------------------------------
