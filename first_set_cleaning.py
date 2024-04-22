@@ -4,15 +4,6 @@ import pandas as pd
 import requests
 import time
 
-# Dictionary to map county codes to county names
-county_names = {
-    '037': 'Los Angeles',
-    '073': 'San Diego',
-    '059': 'Orange',
-    '065': 'Riverside',
-    '071': 'San Bernardino'
-}
-
 # Retrieve data from csv
 coordinate_based_data = pd.read_csv("/content/drive/MyDrive/Colab Notebooks/DS 501/California_House_Info.csv")
 
@@ -38,10 +29,6 @@ for coords, is_duplicate in duplicate_coords.items():
 
 # Drop duplicate rows
 filtered_data.drop_duplicates(subset=['longitude', 'latitude'], keep='first', inplace=True)
-
-# Print the updated data set
-print(filtered_data)
-
 
 # Dictionary to map county codes to county names
 county_names = {
@@ -87,9 +74,6 @@ for index, row in filtered_data.iterrows():
                 print("Maximum retry attempts reached. Skipping...")
                 break  # Exit the retry loop
 
-# Create a copy of the filtered DataFrame to avoid SettingWithCopyWarning
-filtered_data_copy = filtered_data.copy()
-
 # Iterate over each county code in the 'county' column
 indices_to_drop = []  # List to store indices of rows to drop
 for index, county_code in filtered_data['county'].items():
@@ -104,5 +88,11 @@ for index, county_code in filtered_data['county'].items():
 # Drop rows with indices from the list
 filtered_data.drop(indices_to_drop, inplace=True)
 
-# Print the filtered data
+# Save the filtered data to a CSV file
+filtered_data.to_csv('/content/drive/MyDrive/Colab Notebooks/DS 501/set1_filtered_data.csv', index=False)
+
+# Read the saved CSV file back into a DataFrame
+filtered_data = pd.read_csv('/content/drive/MyDrive/Colab Notebooks/DS 501/set1_filtered_data.csv')
+
+# Print the filtered data to verify
 print(filtered_data)
