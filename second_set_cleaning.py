@@ -60,9 +60,10 @@ def county_filter(full_data,county_names):
 
         # Drop rows with indices from the list and round values
         full_data.drop(indices_to_drop, inplace=True)
+    return full_data
 
 #Function to aggregate desired columns
-def data_aggregation(aggregation_functions):
+def data_aggregation(full_data,aggregation_functions):
     mod_full_data = full_data.groupby(['longitude', 'latitude']).agg(aggregation_functions).reset_index()
 
 
@@ -92,7 +93,7 @@ def complete_set2(susbset_list):
 
 def clean_set2(full_data, county_names, aggregation_functions):
     filtered_data = county_filter(full_data,county_names)
-    cleaned_dataset2 = data_aggregation(aggregation_functions)
+    cleaned_dataset2 = data_aggregation(full_data,aggregation_functions)
 
     return cleaned_dataset2
 
