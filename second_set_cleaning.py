@@ -47,7 +47,7 @@ def get_county(latitude, longitude):
 
 #Function to process 2 or more subsets of dataSet
 
-def clean_set2(susbset_list):{
+def clean_set2(susbset_list):
     full_data = pd.DataFrame()
     for idx, file_name in enumerate(susbset_list):
         # Read the CSV file into a DataFrame
@@ -63,7 +63,7 @@ def clean_set2(susbset_list):{
     full_data['county'] = full_data.apply(lambda row: get_county(row['latitude'], row['longitude']), axis=1)
 
     return full_data
-}
+
 # Use fucntion to join and clean data sets
 susbset_list = ['train.csv', 'test.csv']
 
