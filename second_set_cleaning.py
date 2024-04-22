@@ -52,12 +52,19 @@ test_data = pd.read_csv("test.csv")
 # Join both sets to have complete set
 full_data = pd.concat([train_data, test_data], axis=0)
 
+
+#-----------------------------------------------------------
+full_data = full_data.head(500) #Restrict data for testing
+#-----------------------------------------------------------
+
+
 # Clean rows with empty data for Address and Bedrooms
 full_data = full_data.dropna(subset=['Address', 'Bedrooms'])
 
 # Add longitude and latitude columns
-full_data['Latitude'], full_data['Longitude'] = zip(*full_data.apply(lambda row: get_geocode(row['Address'], row['City'], row['Zip'], row['State']), axis=1))
+full_data['latitude'], full_data['longitude'] = zip(*full_data.apply(lambda row: get_geocode(row['Address'], row['City'], row['Zip'], row['State']), axis=1))
 
+#Define County codes for data cleaning
 county_names = {
     '037': 'Los Angeles',
     '073': 'San Diego',
@@ -67,7 +74,49 @@ county_names = {
 }
 
 # Add county column
-full_data['County'] = full_data.apply(lambda row: get_county(row['Latitude'], row['Longitude']), axis=1)
+full_data['county'] = full_data.apply(lambda row: get_county(row['latitude'], row['longitude']), axis=1)
 
-# Check final data
-print(f"Full data with geocode and county:\n{full_data}")
+filtered_set2_data = full_data.copy()
+
+# Iterate over each county code in the 'county' column
+indices_to_drop = []  # List to store indices of rows to drop
+for index, county_code in full_data['county'].items():
+    # Check if the county code exists in the dictionary keys
+    if county_code in county_names:
+        # Replace the county code with the corresponding county name
+        full_data.at[index, 'county'] = county_names[county_code]
+    else:
+        # Add the index to the list of indices to drop
+        indices_to_drop.append(index)
+
+# Drop rows with indices from the list and round values
+full_data.drop(indices_to_drop, inplace=True)
+full_data['latitude'] = full_data['latitude'].round(2)
+full_data['longitude'] = full_data['longitude'].round(2)
+
+full_data_backup = full_data.copy()
+
+#Agregate data for merging
+# Define aggregation functions for each column
+aggregation_functions = {
+    'Sold Price': 'mean',  # Average price of homes
+    'Year built': 'mean',
+    'Bedrooms': 'sum',  # Total number of bedrooms
+    'Bathrooms': 'sum',
+    'Full bathrooms': 'sum',
+    'Total interior livable area': 'mean',
+    'Elementary School Distance': 'mean',
+    'Middle School Distance': 'mean',
+    'High School Distance': 'mean',
+    'Last Sold Price': 'mean'  # Average distance to schools
+}
+
+# Group by longitude and latitude columns and apply aggregation functions
+mod_full_data = full_data.groupby(['longitude', 'latitude']).agg(aggregation_functions).reset_index()
+
+#-----------------------------------------------
+#add command to save csv of completed processed data set
+#-----------------------------------------------
+
+
+print(mod_full_data)
