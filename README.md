@@ -1,21 +1,31 @@
 # DS501_Project
 
-#Ideas
-# - Theme #3: Merge 2 databases and report on findings of how they enhanced each other
-#1. Merge House price and House characteristics Data
+**Authors:** Daniel Alvarado Segura and Jun Lee
 
-#First dataset link: https://www.kaggle.com/datasets/jamshidahmadov/california-house-information
+**Code repository:** https://github.com/Dasikio/DS501_Project.git
 
-#Second dataset link: https://www.kaggle.com/datasets/quantbruce/californiahouseprices
+**Description**: In this project we plan to merge two data sets which include housing selling prices for California. With this new merged data set we will be able to find a much more refined image of the house market in the area of California. 
 
-#Link for the api: https://geocoding.geo.census.gov/geocoder/
-#Click "Find Geographies", "Geographic Coordinator"
+**Data Sets**: We will use two open source data sets which inlcude information about the housing market of the area of California. The first set contains information of the houses per quadrant based on longitude and latitude. The second set has information of specific houses and their specific address. Below is a basic analysis of each dataset.
 
-#We are matching the houses in dataset 1 with the houses in data set 2 using the geocoding API. Then we will compare the changes in house prices over the years.
+    #First dataset link: https://www.kaggle.com/datasets/jamshidahmadov/california-house-information
 
-#Data set 1 will drop all rows/locations based on longitude/latitude that are not in Los Angeles, San Diego, or Orange County.
+    #Second dataset link: https://www.kaggle.com/datasets/quantbruce/californiahouseprices
 
-#Data set 2 will drop all rows/locations based on cities that are not in the counties mentioned above. 
+    #Link for the api: https://geocoding.geo.census.gov/geocoder/
 
-#Count num cooling features and heating features
-#Bonus: We could create and implement a price change prediction
+# Project Dependencies
+
+This project relies on the following Python modules:
+
+- pandas
+- requests
+- matplotlib
+
+## Installation
+
+You can install the dependencies using pip, the Python package manager. Run the following command in your terminal or command prompt:
+
+```bash
+pip install pandas requests matplotlib
+
