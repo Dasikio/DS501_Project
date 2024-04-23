@@ -1,6 +1,5 @@
 import pandas as pd
 import requests
-import time
 
 # Function to get county from geocode
 def get_county(latitude, longitude):
@@ -36,6 +35,8 @@ def complete_set1(file_path):
 
 #Function to filter data from wanted counties
 def county_filter(filtered_data, county_names):
+    #Get counties
+    filtered_data['county'] = filtered_data.apply(lambda row: get_county(row['latitude'], row['longitude']), axis=1)
     # Iterate over each county code in the 'county' column
     indices_to_drop = []  # List to store indices of rows to drop
     for index, county_code in filtered_data['county'].items():
@@ -59,7 +60,7 @@ def main(file_path, county_names):
 
 if __name__ == "__main__":
     #File path to dataSet
-    file_path = "local_path/California_House_Info.csv"
+    file_path = "local_address/California_House_Info.csv"
     
     # Define County codes wanted
     county_names = {
